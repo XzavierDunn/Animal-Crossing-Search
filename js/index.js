@@ -8,27 +8,28 @@ let onClick = () => {
   let category = selected.options[selected.selectedIndex].value;
 
   // get obj && lower case it and put _ between words
-  let obj = document
-    .getElementById("obj")
-    .value.toLowerCase()
-    .split(" ")
-    .join("_");
+  let old = document.getElementById("obj").value;
+
+  let obj = old.toLowerCase().split(" ").join("_");
 
   // get information
   let url = `https://acnhapi.com/v1a/${category}/${obj}`;
-  getData(url).then((res) => createData(category, res));
+  getData(url, old.charAt(0).toUpperCase() + old.slice(1)).then((res) =>
+    createData(category, res)
+  );
 };
 
 // Get data from API
-let getData = async (url) => {
-  let obj;
+let getData = async (url, item) => {
+  let obj = [];
 
   clean();
 
   await fetch(url)
-    .then((res) => res.json())
-    .then((data) => (obj = data));
+    .then((res) => (res.status != 404 ? res.json() : (res = "fail")))
+    .then((data) => (data != "fail" ? obj.push(data) : obj.push("fail")));
 
+  obj.push(item);
   return obj;
 };
 
@@ -62,28 +63,34 @@ let btnToggle = () => {
 
 // Create objs with API data and put it on screen
 let createData = (category, data) => {
-  btnToggle();
   // create obj on screen edit depending on category
-  switch (category) {
-    case "fish":
-      fish(data);
-      break;
+  let determine = typeof data[0] !== "undefined" ? "" : data[0].length > 4;
 
-    case "villagers":
-      villagers(data);
-      break;
+  if (data[0] != "fail" && !determine) {
+    btnToggle();
+    switch (category) {
+      case "fish":
+        fish(data[0]);
+        break;
 
-    case "bugs":
-      bugs(data);
-      break;
+      case "villagers":
+        villagers(data[0]);
+        break;
 
-    case "fossils":
-      fossils(data);
-      break;
+      case "bugs":
+        bugs(data[0]);
+        break;
 
-    case "sea":
-      sea(data);
-      break;
+      case "fossils":
+        fossils(data[0]);
+        break;
+
+      case "sea":
+        sea(data[0]);
+        break;
+    }
+  } else {
+    alert(data[1]);
   }
 };
 
@@ -258,4 +265,22 @@ let clean = () => {
   document.getElementById("isAllYear").innerText = "";
   document.getElementById("location").innerText = "";
   document.getElementById("rarity").innerText = "";
+  document.getElementById("icon").src = "";
+  document.getElementById("cjPrice").innerText = "";
+};
+
+//Alert
+let alert = (item) => {
+  if (item.length > 0) {
+    let x = document.getElementById("snackbar");
+    x.innerText = `${item} wasn't found :(`;
+    x.className = "show";
+    setTimeout(function () {
+      x.className = x.className.replace("show", "");
+      x.innerText = "";
+    }, 3000);
+  }
+
+  clean();
+  btnToggle();
 };
