@@ -64,7 +64,7 @@ let btnToggle = () => {
 // Create objs with API data and put it on screen
 let createData = (category, data) => {
   // create obj on screen edit depending on category
-  let determine = typeof data[0] !== "undefined" ? "" : data[0];
+  let determine = typeof data[0] !== "undefined" ? "" : data[0].length > 4;
 
   if (data[0] != "fail" && !determine) {
     btnToggle();
