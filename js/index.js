@@ -22,6 +22,9 @@ let onClick = () => {
 // Get data from API
 let getData = async (url) => {
   let obj;
+
+  clean();
+
   await fetch(url)
     .then((res) => res.json())
     .then((data) => (obj = data));
@@ -35,7 +38,8 @@ let btnToggle = () => {
   let btnDiv = document.getElementById("btnDiv");
   if (btnDiv.classList.contains("notLoading")) {
     btnDiv.classList.remove("notLoading");
-    let html = '<button class="btn btn-primary" type="button" disabled>';
+    let html =
+      '<button class="btn btn-light fontColor" type="button" style="background-color: #60bdd5 !important; disabled>';
     html += "<span";
     html += 'class="spinner-border spinner-border-sm" ';
     html += 'role="status" ';
@@ -48,7 +52,7 @@ let btnToggle = () => {
   } else {
     btnDiv.classList.add("notLoading");
     let html =
-      '<button type="submit" onclick="onClick()" class="btn btn-primary">';
+      '<button type="submit" onclick="onClick()" class="btn btn-light fontColor" style="background-color: #60bdd5 !important;">';
     html += "Submit";
     html += "</button>";
 
@@ -243,4 +247,15 @@ let sea = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Shadow: ${shadow}`;
   document.getElementById("rarity").innerText = `Speed: ${speed}`;
+};
+
+// Clean values
+let clean = () => {
+  document.getElementById("name").innerText = "";
+  document.getElementById("catchPhrase").innerText = "";
+  document.getElementById("price").innerText = "";
+  document.getElementById("isAllDay").innerText = "";
+  document.getElementById("isAllYear").innerText = "";
+  document.getElementById("location").innerText = "";
+  document.getElementById("rarity").innerText = "";
 };
