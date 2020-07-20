@@ -10,3 +10,7 @@ Useful for when playing ACNH and you want to find the price and some information
 ## APIs/Data used
 [Api used](https://acnhapi.com/)
 [Data Sheet](https://docs.google.com/spreadsheets/d/13d_LAJPlxMa_DubPTuirkIV4DERBMXbrWQsmSh8ReK4/edit#gid=1492267482)
+
+
+## Known Issues
+Searching by villager name currently doesn't work. Need either id or file-name. (ant00 or 1)
