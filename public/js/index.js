@@ -8,27 +8,31 @@ let onClick = () => {
   let category = selected.options[selected.selectedIndex].value;
 
   // get obj && lower case it and put _ between words
-  let obj = document
-    .getElementById("obj")
-    .value.toLowerCase()
-    .split(" ")
-    .join("_");
+  let old = document.getElementById("obj").value;
+
+  let obj = old.toLowerCase().split(" ").join("_");
 
   // get information
-  let url = `https://acnhapi.com/v1a/${category}/${obj}`;
-  getData(url).then((res) => createData(category, res));
+  let url =
+    category == "villagers"
+      ? `https://acnhapi.com/v1a/${category}`
+      : `https://acnhapi.com/v1a/${category}/${obj}`;
+  getData(url, old.charAt(0).toUpperCase() + old.slice(1)).then((res) =>
+    createData(category, res)
+  );
 };
 
 // Get data from API
-let getData = async (url) => {
-  let obj;
+let getData = async (url, item) => {
+  let obj = [];
 
   clean();
 
   await fetch(url)
-    .then((res) => res.json())
-    .then((data) => (obj = data));
+    .then((res) => (res.status != 404 ? res.json() : (res = "fail")))
+    .then((data) => (data != "fail" ? obj.push(data) : obj.push("fail")));
 
+  obj.push(item);
   return obj;
 };
 
@@ -62,28 +66,33 @@ let btnToggle = () => {
 
 // Create objs with API data and put it on screen
 let createData = (category, data) => {
-  btnToggle();
   // create obj on screen edit depending on category
-  switch (category) {
-    case "fish":
-      fish(data);
-      break;
+  let determine = typeof data[0] !== "undefined" ? "" : data[0].length > 4;
 
-    case "villagers":
-      villagers(data);
-      break;
+  if (data[0] != "fail" && !determine) {
+    switch (category) {
+      case "fish":
+        fish(data[0]);
+        break;
 
-    case "bugs":
-      bugs(data);
-      break;
+      case "villagers":
+        villagers(data);
+        break;
 
-    case "fossils":
-      fossils(data);
-      break;
+      case "bugs":
+        bugs(data[0]);
+        break;
 
-    case "sea":
-      sea(data);
-      break;
+      case "fossils":
+        fossils(data[0]);
+        break;
+
+      case "sea":
+        sea(data[0]);
+        break;
+    }
+  } else {
+    alert(data[1]);
   }
 };
 
@@ -115,7 +124,6 @@ let fish = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById("cjPrice").innerText = `CJ Price: ${cjPrice}`;
   document.getElementById(
@@ -126,29 +134,61 @@ let fish = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Location: ${location}`;
   document.getElementById("rarity").innerText = `Rarity: ${rarity}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // villager
 let villagers = (data) => {
-  let name =
-    data["name"]["name-EUen"].charAt(0).toUpperCase() +
-    data["name"]["name-EUen"].slice(1) +
-    " ID: " +
-    data["id"];
-  let catchPhrase = data["catch-phrase"];
-  let birthday = data["birthday-string"];
-  let gender = data["gender"];
-  let personality = data["personality"];
-  let species = data["species"];
-  let icon = data["icon_uri"];
+  let obj = false;
 
-  document.getElementById("name").innerText = name;
-  document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
-  document.getElementById("price").innerText = `Birthday: ${birthday}`;
-  document.getElementById("cjPrice").innerText = `Gender: ${gender}`;
-  document.getElementById("isAllDay").innerText = `Personality: ${personality}`;
-  document.getElementById("isAllYear").innerText = `Species: ${species}`;
+  for (let i in data[0]) {
+    if (data[0][i].name["name-USen"] == data[1]) {
+      obj = data[0][i];
+      break;
+    }
+  }
+
+  if (obj) {
+    let name =
+      obj["name"]["name-EUen"].charAt(0).toUpperCase() +
+      obj["name"]["name-EUen"].slice(1) +
+      " ID: " +
+      obj["id"];
+    let catchPhrase = obj["catch-phrase"];
+    let birthday = obj["birthday-string"];
+    let gender = obj["gender"];
+    let personality = obj["personality"];
+    let species = obj["species"];
+    let icon = obj["icon_uri"];
+
+    document.getElementById("name").innerText = name;
+    document.getElementById("catchPhrase").innerText = catchPhrase;
+    document.getElementById("price").innerText = `Birthday: ${birthday}`;
+    document.getElementById("cjPrice").innerText = `Gender: ${gender}`;
+    document.getElementById(
+      "isAllDay"
+    ).innerText = `Personality: ${personality}`;
+    document.getElementById("isAllYear").innerText = `Species: ${species}`;
+
+    // Create img tag
+    let img = document.createElement("img");
+    img.id = "icon";
+    img.classList.add("card-img-top");
+    img.src = icon;
+    document.getElementsByClassName("card-body")[0].appendChild(img);
+
+    btnToggle();
+  } else {
+    alert(data[1]);
+  }
 };
 
 // bugs
@@ -182,7 +222,6 @@ let bugs = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById("cjPrice").innerText = `Flick Price: ${flickPrice}`;
   document.getElementById(
@@ -193,6 +232,15 @@ let bugs = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Location: ${location}`;
   document.getElementById("rarity").innerText = `Rarity: ${rarity}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // fossils
@@ -206,8 +254,16 @@ let fossils = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = image;
   document.getElementById("price").innerText = `Price: ${price}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = image;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // sea
@@ -237,7 +293,6 @@ let sea = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById(
     "isAllDay"
@@ -247,6 +302,15 @@ let sea = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Shadow: ${shadow}`;
   document.getElementById("rarity").innerText = `Speed: ${speed}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // Clean values
@@ -258,4 +322,25 @@ let clean = () => {
   document.getElementById("isAllYear").innerText = "";
   document.getElementById("location").innerText = "";
   document.getElementById("rarity").innerText = "";
+  document.getElementById("cjPrice").innerText = "";
+
+  // rm img
+  let img = document.getElementById("icon");
+  img ? img.remove() : "";
+};
+
+//Alert
+let alert = (item) => {
+  if (item.length > 0) {
+    let x = document.getElementById("snackbar");
+    x.innerText = `${item} wasn't found :(`;
+    x.className = "show";
+    setTimeout(function () {
+      x.className = x.className.replace("show", "");
+      x.innerText = "";
+    }, 3000);
+  }
+
+  clean();
+  btnToggle();
 };

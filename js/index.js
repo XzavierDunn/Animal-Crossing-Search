@@ -13,7 +13,10 @@ let onClick = () => {
   let obj = old.toLowerCase().split(" ").join("_");
 
   // get information
-  let url = `https://acnhapi.com/v1a/${category}/${obj}`;
+  let url =
+    category == "villagers"
+      ? `https://acnhapi.com/v1a/${category}`
+      : `https://acnhapi.com/v1a/${category}/${obj}`;
   getData(url, old.charAt(0).toUpperCase() + old.slice(1)).then((res) =>
     createData(category, res)
   );
@@ -67,14 +70,13 @@ let createData = (category, data) => {
   let determine = typeof data[0] !== "undefined" ? "" : data[0].length > 4;
 
   if (data[0] != "fail" && !determine) {
-    btnToggle();
     switch (category) {
       case "fish":
         fish(data[0]);
         break;
 
       case "villagers":
-        villagers(data[0]);
+        villagers(data);
         break;
 
       case "bugs":
@@ -122,7 +124,6 @@ let fish = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById("cjPrice").innerText = `CJ Price: ${cjPrice}`;
   document.getElementById(
@@ -133,29 +134,61 @@ let fish = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Location: ${location}`;
   document.getElementById("rarity").innerText = `Rarity: ${rarity}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // villager
 let villagers = (data) => {
-  let name =
-    data["name"]["name-EUen"].charAt(0).toUpperCase() +
-    data["name"]["name-EUen"].slice(1) +
-    " ID: " +
-    data["id"];
-  let catchPhrase = data["catch-phrase"];
-  let birthday = data["birthday-string"];
-  let gender = data["gender"];
-  let personality = data["personality"];
-  let species = data["species"];
-  let icon = data["icon_uri"];
+  let obj = false;
 
-  document.getElementById("name").innerText = name;
-  document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
-  document.getElementById("price").innerText = `Birthday: ${birthday}`;
-  document.getElementById("cjPrice").innerText = `Gender: ${gender}`;
-  document.getElementById("isAllDay").innerText = `Personality: ${personality}`;
-  document.getElementById("isAllYear").innerText = `Species: ${species}`;
+  for (let i in data[0]) {
+    if (data[0][i].name["name-USen"] == data[1]) {
+      obj = data[0][i];
+      break;
+    }
+  }
+
+  if (obj) {
+    let name =
+      obj["name"]["name-EUen"].charAt(0).toUpperCase() +
+      obj["name"]["name-EUen"].slice(1) +
+      " ID: " +
+      obj["id"];
+    let catchPhrase = obj["catch-phrase"];
+    let birthday = obj["birthday-string"];
+    let gender = obj["gender"];
+    let personality = obj["personality"];
+    let species = obj["species"];
+    let icon = obj["icon_uri"];
+
+    document.getElementById("name").innerText = name;
+    document.getElementById("catchPhrase").innerText = catchPhrase;
+    document.getElementById("price").innerText = `Birthday: ${birthday}`;
+    document.getElementById("cjPrice").innerText = `Gender: ${gender}`;
+    document.getElementById(
+      "isAllDay"
+    ).innerText = `Personality: ${personality}`;
+    document.getElementById("isAllYear").innerText = `Species: ${species}`;
+
+    // Create img tag
+    let img = document.createElement("img");
+    img.id = "icon";
+    img.classList.add("card-img-top");
+    img.src = icon;
+    document.getElementsByClassName("card-body")[0].appendChild(img);
+
+    btnToggle();
+  } else {
+    alert(data[1]);
+  }
 };
 
 // bugs
@@ -189,7 +222,6 @@ let bugs = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById("cjPrice").innerText = `Flick Price: ${flickPrice}`;
   document.getElementById(
@@ -200,6 +232,15 @@ let bugs = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Location: ${location}`;
   document.getElementById("rarity").innerText = `Rarity: ${rarity}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // fossils
@@ -213,8 +254,16 @@ let fossils = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = image;
   document.getElementById("price").innerText = `Price: ${price}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = image;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // sea
@@ -244,7 +293,6 @@ let sea = (data) => {
 
   document.getElementById("name").innerText = name;
   document.getElementById("catchPhrase").innerText = catchPhrase;
-  document.getElementById("icon").src = icon;
   document.getElementById("price").innerText = `Price: ${price}`;
   document.getElementById(
     "isAllDay"
@@ -254,6 +302,15 @@ let sea = (data) => {
   ).innerText = `Is it available all Year? - ${isAllYear}`;
   document.getElementById("location").innerText = `Shadow: ${shadow}`;
   document.getElementById("rarity").innerText = `Speed: ${speed}`;
+
+  // Create img tag
+  let img = document.createElement("img");
+  img.id = "icon";
+  img.classList.add("card-img-top");
+  img.src = icon;
+  document.getElementsByClassName("card-body")[0].appendChild(img);
+
+  btnToggle();
 };
 
 // Clean values
@@ -265,8 +322,11 @@ let clean = () => {
   document.getElementById("isAllYear").innerText = "";
   document.getElementById("location").innerText = "";
   document.getElementById("rarity").innerText = "";
-  document.getElementById("icon").src = "";
   document.getElementById("cjPrice").innerText = "";
+
+  // rm img
+  let img = document.getElementById("icon");
+  img ? img.remove() : "";
 };
 
 //Alert
